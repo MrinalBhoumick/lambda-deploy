@@ -18,12 +18,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Install serverless
-        run: npm install -g serverless
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -31,5 +25,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
 
+      - name: Install dependencies
+        env:
+          CI: true
+        run: npm ci
+
+      - name: Package Lambda function
+        run: |
+          mkdir -p build
+          cp -r * build/
+          cp -r node_modules build/
+          cd build
+          zip -r ../publish.zip .
+          cd ..
+
       - name: Deploy to AWS Lambda
-        run: aws lambda update-function-code --function-name lambda-github-actions --region ap-south-1
+        run: |
+          aws lambda update-function-code --function-name lambda-github-actions --zip-file fileb://publish.zip --region ap-south-1
