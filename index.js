@@ -1,7 +1,16 @@
 exports.handler = async (event) => {
-    console.log("Hello, world!");
+  const method = event.httpMethod;
+  const path = event.path;
+
+  if (method === 'ANY' && path === '/checkserver') {
     return {
       statusCode: 200,
-      body: JSON.stringify('Hello, world!'),
+      body: 'Server is up',
     };
-  };
+  } else {
+    return {
+      statusCode: 404,
+      body: 'Not Found',
+    };
+  }
+};
