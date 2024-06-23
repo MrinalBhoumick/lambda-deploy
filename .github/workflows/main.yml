@@ -16,7 +16,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14'  # Adjust node version if needed
+          node-version: '20'  # Adjust node version if needed
 
       - name: Install AWS CLI
         run: |
@@ -28,7 +28,11 @@ jobs:
           ROLE_ARN="arn:aws:iam::058264356572:role/sts-lambda-role"
           AWS_REGION="ap-south-1"
           aws sts assume-role --role-arn $ROLE_ARN --role-session-name "GitHubActionsDeploy" > sts.json
-
+          
+      - name: Display sts.json
+        run: |
+          cat sts.json
+          
       - name: Configure AWS Credentials from STS
         run: |
           export AWS_ACCESS_KEY_ID=$(jq -r .Credentials.AccessKeyId sts.json)
