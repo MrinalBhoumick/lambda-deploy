@@ -1,16 +1,14 @@
-exports.handler = async (event) => {
-  const method = event.httpMethod;
-  const path = event.path;
+const express = require('express');
+const serverless = require('serverless-http');
 
-  if (method === 'ANY' && path === '/checkserver') {
-    return {
-      statusCode: 200,
-      body: 'Server is up',
-    };
-  } else {
-    return {
-      statusCode: 404,
-      body: 'Not Found',
-    };
-  }
-};
+const app = express();
+
+app.get('/', (req, res) => {
+  res.send('Hello from the root route!');
+});
+
+app.get('/checkserver', (req, res) => {
+  res.send('Server is up');
+});
+
+module.exports.handler = serverless(app);
