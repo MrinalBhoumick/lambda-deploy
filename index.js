@@ -1,6 +1,11 @@
 // Lambda function handler
 exports.handler = async (event) => {
   try {
+    // Ensure event object and request context exist
+    if (!event || !event.requestContext || !event.requestContext.http) {
+      throw new Error('Invalid request');
+    }
+
     // Determine which route is being accessed
     const route = event.requestContext.http.path;
 
