@@ -4,7 +4,7 @@ const serverless = require("serverless-http");
 const app = express();
 
 app.get('/checkserver', (req, res) => {
-    res.send('Server is up');
+    res.send('Server is up and running with CI-CD');
 });
 
 module.exports.handler = serverless(app);
