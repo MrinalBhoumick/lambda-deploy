@@ -2,7 +2,8 @@ const customQuotes = [
   "The only way to do great work is to love what you do. - Steve Jobs",
   "Believe you can and you're halfway there. - Theodore Roosevelt",
   "Strive not to be a success, but rather to be of value. - Albert Einstein",
-  "The best way to predict the future is to create it. - Abraham Lincoln"
+  "The best way to predict the future is to create it. - Abraham Lincoln",
+  "Believe in Yourself. - Mrinal Bhoumick"
 ];
 
 const motivationalQuotes = [
