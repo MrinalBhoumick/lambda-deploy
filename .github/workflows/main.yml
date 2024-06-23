@@ -16,26 +16,38 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '20'
+          node-version: '14'  # Adjust node version if needed
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Assume IAM Role
+        run: |
+          ROLE_ARN="arn:aws:iam::058264356572:role/sts-lambda-role"
+          AWS_REGION="ap-south-1"
+          aws sts assume-role --role-arn $ROLE_ARN --role-session-name "GitHubActionsDeploy" > sts.json
+
+      - name: Configure AWS Credentials from STS
+        run: |
+          export AWS_ACCESS_KEY_ID=$(jq -r .Credentials.AccessKeyId sts.json)
+          export AWS_SECRET_ACCESS_KEY=$(jq -r .Credentials.SecretAccessKey sts.json)
+          export AWS_SESSION_TOKEN=$(jq -r .Credentials.SessionToken sts.json)
 
       - name: Package Lambda function
         run: |
-          mkdir -p dist
-          rsync -av --exclude='node_modules' --exclude='.git' ./ dist
-          cd dist
-          zip -r ../publish.zip .
-          cd ..
+          npm install --production
+          npm pack
+          mv *.tgz dist/package.tgz
 
       - name: Deploy to AWS Lambda
         run: |
-          aws lambda update-function-code --function-name lambda-github-actions --zip-file fileb://publish.zip --region ap-south-1
+          aws lambda update-function-code \
+            --function-name lambda-github-actions \
+            --zip-file fileb://dist/package.tgz \
+            --region $AWS_REGION
+
+      - name: Clean up
+        run: |
+          rm -f sts.json
