@@ -1,28 +1,43 @@
-const express = require('express');
-const serverless = require('serverless-http');
+// index.js
 
-const app = express();
-
-// Array of quotes
-const quotes = [
-  { text: "The greatest glory in living lies not in never falling, but in rising every time we fall.", author: "Nelson Mandela" },
-  { text: "The way to get started is to quit talking and begin doing.", author: "Walt Disney" },
-  { text: "Your time is limited, so don't waste it living someone else's life.", author: "Steve Jobs" },
-  { text: "If life were predictable it would cease to be life, and be without flavor.", author: "Eleanor Roosevelt" },
-  { text: "Life is what happens when you're busy making other plans.", author: "John Lennon" }
-];
-
-// Function to get a random quote
-function getRandomQuote() {
-  const randomIndex = Math.floor(Math.random() * quotes.length);
-  return quotes[randomIndex];
+// Function to perform basic arithmetic operations
+function calculator(operation, num1, num2) {
+  switch(operation) {
+    case 'add':
+      return num1 + num2;
+    case 'subtract':
+      return num1 - num2;
+    case 'multiply':
+      return num1 * num2;
+    case 'divide':
+      if (num2 === 0) {
+        throw new Error('Division by zero is not allowed');
+      }
+      return num1 / num2;
+    default:
+      throw new Error('Unsupported operation');
+  }
 }
 
-// Route to handle random quote requests
-app.get('/random-quote', (req, res) => {
-  const quote = getRandomQuote();
-  res.json(quote);
-});
+// Lambda function handler
+exports.handler = async (event) => {
+  try {
+    // Parse input from API Gateway event
+    const { operation, num1, num2 } = JSON.parse(event.body);
 
-// Export the serverless handler
-module.exports.handler = serverless(app);
+    // Perform calculation
+    const result = calculator(operation, num1, num2);
+
+    // Return successful response
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ result }),
+    };
+  } catch (error) {
+    // Return error response
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: error.message || 'Unknown error' }), // Handle undefined error message
+    };
+  }
+};
