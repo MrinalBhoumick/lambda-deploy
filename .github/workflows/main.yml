@@ -9,44 +9,36 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '20'
 
-      - name: Install AWS CLI and jq
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y awscli jq
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::058264356572:role/sts-tenant-lambda-role
+          aws-region: ap-south-1
 
-      - name: Assume IAM Role and Set Credentials
-        env:
-          ROLE_ARN: arn:aws:iam::058264356572:role/sts-lambda-role
-        run: |
-          aws sts assume-role --role-arn $ROLE_ARN --role-session-name "GitHubActionsDeploy" > sts.json
-          export AWS_ACCESS_KEY_ID=$(jq -r .Credentials.AccessKeyId sts.json)
-          export AWS_SECRET_ACCESS_KEY=$(jq -r .Credentials.SecretAccessKey sts.json)
-          export AWS_SESSION_TOKEN=$(jq -r .Credentials.SessionToken sts.json)
+      - name: Install dependencies
+        run: npm ci
 
       - name: Package Lambda function
         run: |
-          npm install --production
-          npm pack
-          mv *.tgz dist/package.tgz
+          mkdir -p dist
+          rsync -av --exclude='node_modules' --exclude='.git' ./ dist
+          cd dist
+          zip -r ../publish.zip .
+          cd ..
 
       - name: Deploy to AWS Lambda
-        env:
-          AWS_DEFAULT_REGION: ap-south-1
         run: |
-          aws lambda update-function-code \
-            --function-name lambda-github-actions \
-            --zip-file fileb://dist/package.tgz \
-            --region $AWS_DEFAULT_REGION
-
-      - name: Clean up
-        run: |
-          rm -f sts.json
+          aws lambda update-function-code --function-name lambda-github-actions --zip-file fileb://publish.zip --region ap-south-1
