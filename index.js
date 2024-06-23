@@ -2,12 +2,12 @@
 exports.handler = async (event) => {
   try {
     // Ensure event object and request context exist
-    if (!event || !event.requestContext || !event.requestContext.http) {
-      throw new Error('Invalid request');
+    if (!event || !event.path) {
+      throw new Error('Invalid request: Event object or path not defined');
     }
 
     // Determine which route is being accessed
-    const route = event.requestContext.http.path;
+    const route = event.path;
 
     // Handle different routes
     if (route === '/greeting') {
