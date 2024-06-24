@@ -4,7 +4,8 @@ const customQuotes = [
   "Strive not to be a success, but rather to be of value. - Albert Einstein",
   "The best way to predict the future is to create it. - Abraham Lincoln",
   "Believe in Yourself. - Mrinal Bhoumick",
-  "Just have prayings for me have one crucial exam. - Mrinal Bhoumick"
+  "Just have prayings for me have one crucial exam. - Mrinal Bhoumick",
+  "Wherever Life takes you bloom with grace. - Mrinal Bhoumick"
 ];
 
 const motivationalQuotes = [
