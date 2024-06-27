@@ -5,7 +5,8 @@ const customQuotes = [
   "The best way to predict the future is to create it. - Abraham Lincoln",
   "Believe in Yourself. - Mrinal Bhoumick",
   "Just have prayings for me have one crucial exam. - Mrinal Bhoumick",
-  "Wherever Life takes you bloom with grace. - Mrinal Bhoumick"
+  "Wherever Life takes you bloom with grace. - Mrinal Bhoumick",
+  "Life goes on."
 ];
 
 const motivationalQuotes = [
